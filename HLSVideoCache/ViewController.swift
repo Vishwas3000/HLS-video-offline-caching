@@ -19,6 +19,8 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var downloadSpeedLabel: UILabel!
 
+    @IBOutlet weak var clrAllCache: UIButton!
+    
     private let player = AVPlayer()
     private var playerLayer: AVPlayerLayer?
     private var downloadSpeedTimer: Timer?
@@ -43,10 +45,19 @@ class ViewController: UIViewController {
         // Add actions for seek buttons
         seekForwardButton.addAction(UIAction { _ in self.seekForward() }, for: .touchUpInside)
         seekBackwardButton.addAction(UIAction { _ in self.seekBackward() }, for: .touchUpInside)
+        clrAllCache.addAction(UIAction{ _ in self.clearAllCache() }, for: .touchUpInside)
 
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapPlayerView(_:)))
         playerView.addGestureRecognizer(tapGestureRecognizer)
         
+    }
+    
+    private func clearAllCache(){
+        do {
+            try HLSVideoCache.shared.clearCache()
+        } catch {
+            print("Failed to clear cache: \(error)")
+        }
     }
     
     deinit {
@@ -90,12 +101,14 @@ class ViewController: UIViewController {
         let currentTime = player.currentTime()
         let newTime = CMTimeAdd(currentTime, CMTimeMake(value: 5, timescale: 1))
         player.seek(to: newTime)
+        player.play()
     }
     
     private func seekBackward() {
         let currentTime = player.currentTime()
         let newTime = CMTimeSubtract(currentTime, CMTimeMake(value: 5, timescale: 1))
         player.seek(to: newTime)
+        player.play()
     }
 
     @objc private func didTapPlayerView(_ sender: UITapGestureRecognizer) {
